@@ -68,7 +68,7 @@ class ItemDetailsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          '\$${dress.price.toStringAsFixed(0)} / day',
+                          '₹${dress.price.toStringAsFixed(0)} / day',
                           style: TextStyle(
                             color: theme.primaryColor,
                             fontWeight: FontWeight.bold,

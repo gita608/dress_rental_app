@@ -7,8 +7,11 @@ class AppProvider with ChangeNotifier {
   static const String _dressesKey = 'dresses';
   static const String _bookingsKey = 'bookings';
 
+  static const String _themeModeKey = 'themeMode';
+
   final List<Dress> _dresses = [];
   final List<Booking> _bookings = [];
+  ThemeMode _themeMode = ThemeMode.system;
 
   AppProvider() {
     _loadData();
@@ -16,6 +19,7 @@ class AppProvider with ChangeNotifier {
 
   List<Dress> get dresses => _dresses;
   List<Booking> get bookings => _bookings;
+  ThemeMode get themeMode => _themeMode;
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -52,7 +56,19 @@ class AppProvider with ChangeNotifier {
       _bookings.addAll(decoded.map((m) => Booking.fromMap(m)).toList());
     }
 
+    final themeModeIndex = prefs.getInt(_themeModeKey);
+    if (themeModeIndex != null) {
+      _themeMode = ThemeMode.values[themeModeIndex];
+    }
+
     notifyListeners();
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_themeModeKey, mode.index);
   }
 
   Future<void> _saveData() async {

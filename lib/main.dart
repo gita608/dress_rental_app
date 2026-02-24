@@ -27,13 +27,19 @@ class DressRentalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context);
+
     return MaterialApp(
-      title: 'Dress Rental',
+      title: 'EVOCA FASHION STORE',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme.copyWith(
         textTheme: GoogleFonts.outfitTextTheme(AppTheme.lightTheme.textTheme),
       ),
-      initialRoute: AppRoutes.login,
+      darkTheme: AppTheme.darkTheme.copyWith(
+        textTheme: GoogleFonts.outfitTextTheme(AppTheme.darkTheme.textTheme),
+      ),
+      themeMode: provider.themeMode,
+      initialRoute: AppRoutes.home,
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case AppRoutes.login:

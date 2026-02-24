@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/providers/app_provider.dart';
 import '../../../../core/routing/app_routes.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -14,13 +16,12 @@ class SettingsScreen extends StatelessWidget {
         children: [
           _buildSectionHeader('Account'),
           _buildSettingsTile(Icons.person_outline, 'Profile Settings', () {}),
-          _buildSettingsTile(Icons.notifications_none_outlined, 'Notifications', () {}),
           _buildSectionHeader('Inventory'),
           _buildSettingsTile(Icons.category_outlined, 'Category Management', () {}),
-          _buildSettingsTile(Icons.history_outlined, 'Booking History', () {}),
           _buildSectionHeader('System'),
-          _buildSettingsTile(Icons.color_lens_outlined, 'Appearance', () {}),
-          _buildSettingsTile(Icons.security_outlined, 'Security & Privacy', () {}),
+          _buildSettingsTile(Icons.color_lens_outlined, 'Appearance', () {
+            _showAppearanceModal(context);
+          }),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -62,6 +63,60 @@ class SettingsScreen extends StatelessWidget {
       title: Text(title),
       trailing: const Icon(Icons.chevron_right, size: 20),
       onTap: onTap,
+    );
+  }
+
+  void _showAppearanceModal(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Appearance',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.settings_system_daydream),
+                title: const Text('System Default'),
+                trailing: provider.themeMode == ThemeMode.system ? const Icon(Icons.check) : null,
+                onTap: () {
+                  provider.setThemeMode(ThemeMode.system);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.light_mode),
+                title: const Text('Light Mode'),
+                trailing: provider.themeMode == ThemeMode.light ? const Icon(Icons.check) : null,
+                onTap: () {
+                  provider.setThemeMode(ThemeMode.light);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.dark_mode),
+                title: const Text('Dark Mode'),
+                trailing: provider.themeMode == ThemeMode.dark ? const Icon(Icons.check) : null,
+                onTap: () {
+                  provider.setThemeMode(ThemeMode.dark);
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/app_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -54,8 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.diamond_outlined,
+                  AppLogo(
                     size: 80,
                     color: theme.primaryColor,
                   ),

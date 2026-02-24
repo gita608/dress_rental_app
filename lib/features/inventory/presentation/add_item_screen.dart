@@ -93,7 +93,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Rental Price (per day)', prefixText: '\$'),
+                decoration: const InputDecoration(labelText: 'Rental Price (per day)', prefixText: '₹'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Please enter a price';

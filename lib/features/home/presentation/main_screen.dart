@@ -49,9 +49,6 @@ class _MainScreenState extends State<MainScreen> {
           child: NavigationBar(
             selectedIndex: _selectedIndex,
             onDestinationSelected: _onItemTapped,
-            backgroundColor: theme.colorScheme.surface,
-            indicatorColor: theme.primaryColor.withValues(alpha: 0.2),
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.grid_view_outlined),
