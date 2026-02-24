@@ -9,16 +9,29 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context);
+    final user = provider.currentUser;
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
       ),
       body: ListView(
         children: [
-          _buildSectionHeader('Account'),
-          _buildSettingsTile(Icons.person_outline, 'Profile Settings', () {
-            Navigator.pushNamed(context, AppRoutes.profileSettings);
-          }),
+          const SizedBox(height: 16),
+          // Profile Header
+          ListTile(
+            leading: CircleAvatar(
+              radius: 24,
+              backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
+              child: Icon(Icons.person, color: theme.primaryColor),
+            ),
+            title: Text(user?.name ?? 'Guest User', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(user?.email ?? 'Sign in to sync data'),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.profileSettings),
+          ),
+          const Divider(),
           _buildSectionHeader('Inventory'),
           _buildSettingsTile(Icons.grid_view_outlined, 'Default Catalog View', () {
             _showViewModeModal(context);
@@ -34,8 +47,11 @@ class SettingsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: OutlinedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              onPressed: () async {
+                await provider.logout();
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, AppRoutes.login);
+                }
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,

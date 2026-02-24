@@ -1,5 +1,5 @@
 enum BookingStatus { pending, ready, active, completed }
-enum DressStatus { available, cleaning, repair, rented }
+enum DressStatus { available, cleaning, repair, rented, outOfStock }
 enum ViewMode { list, grid }
 
 class Category {
@@ -37,6 +37,7 @@ class Dress {
   final String description;
   final List<String> sizes;
   final String? categoryId;
+  int stock;
   DressStatus status;
 
   Dress({
@@ -46,6 +47,7 @@ class Dress {
     required this.description,
     required this.sizes,
     this.categoryId,
+    this.stock = 1,
     this.status = DressStatus.available,
   });
 
@@ -57,6 +59,7 @@ class Dress {
       'description': description,
       'sizes': sizes,
       'categoryId': categoryId,
+      'stock': stock,
       'status': status.name,
     };
   }
@@ -69,6 +72,7 @@ class Dress {
       description: map['description'],
       sizes: List<String>.from(map['sizes']),
       categoryId: map['categoryId'],
+      stock: map['stock'] ?? 1,
       status: DressStatus.values.byName(map['status']),
     );
   }
@@ -118,6 +122,34 @@ class Booking {
       endDate: DateTime.parse(map['endDate']),
       measurements: Map<String, double>.from(map['measurements']),
       status: BookingStatus.values.byName(map['status']),
+    );
+  }
+}
+
+class User {
+  final String email;
+  final String name;
+  final String? profileImage;
+
+  User({
+    required this.email,
+    required this.name,
+    this.profileImage,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'email': email,
+      'name': name,
+      'profileImage': profileImage,
+    };
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      email: map['email'],
+      name: map['name'],
+      profileImage: map['profileImage'],
     );
   }
 }

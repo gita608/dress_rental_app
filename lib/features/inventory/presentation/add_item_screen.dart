@@ -19,6 +19,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   late TextEditingController _descriptionController;
   Dress? _existingDress;
   String? _selectedCategoryId;
+  late TextEditingController _stockController;
 
   @override
   void initState() {
@@ -30,10 +31,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
       _priceController = TextEditingController(text: _existingDress!.price.toString());
       _descriptionController = TextEditingController(text: _existingDress!.description);
       _selectedCategoryId = _existingDress!.categoryId;
+      _stockController = TextEditingController(text: _existingDress!.stock.toString());
     } else {
       _nameController = TextEditingController();
       _priceController = TextEditingController();
       _descriptionController = TextEditingController();
+      _stockController = TextEditingController(text: '1');
     }
   }
 
@@ -49,6 +52,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
           description: _descriptionController.text,
           sizes: _existingDress!.sizes,
           categoryId: _selectedCategoryId,
+          stock: int.parse(_stockController.text),
           status: _existingDress!.status,
         );
         provider.updateDress(updatedDress);
@@ -60,6 +64,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
           description: _descriptionController.text,
           sizes: ['S', 'M', 'L'], // Default for now
           categoryId: _selectedCategoryId,
+          stock: int.parse(_stockController.text),
         );
         provider.addDress(newDress);
       }
@@ -76,6 +81,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
     _nameController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
@@ -144,6 +150,17 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 maxLines: 4,
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Please enter a description';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _stockController,
+                decoration: const InputDecoration(labelText: 'Initial Stock'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Please enter stock count';
+                  if (int.tryParse(value) == null) return 'Please enter a valid number';
                   return null;
                 },
               ),

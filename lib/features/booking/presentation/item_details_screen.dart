@@ -92,11 +92,33 @@ class ItemDetailsScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildDressStatusBadge(dress.status),
-                      TextButton.icon(
-                        onPressed: () => _showDressStatusSheet(context, provider, dress),
-                        icon: const Icon(Icons.sync, size: 16),
-                        label: const Text('Update Status', style: TextStyle(fontSize: 12)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDressStatusBadge(dress.status),
+                          const SizedBox(height: 4),
+                          Text('Available Stock: ${dress.stock}', 
+                            style: TextStyle(
+                              color: dress.stock == 0 ? Colors.red : Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          TextButton.icon(
+                            onPressed: () => _showRefillDialog(context, provider, dress),
+                            icon: const Icon(Icons.add_business_outlined, size: 16),
+                            label: const Text('Refill', style: TextStyle(fontSize: 12)),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => _showDressStatusSheet(context, provider, dress),
+                            icon: const Icon(Icons.sync, size: 16),
+                            label: const Text('Status', style: TextStyle(fontSize: 12)),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -135,10 +157,19 @@ class ItemDetailsScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.measurementForm, arguments: dress.id);
-            },
-            child: const Text('Book & Enter Measurements'),
+            onPressed: dress.stock > 0 && dress.status == DressStatus.available
+              ? () {
+                  Navigator.pushNamed(context, AppRoutes.measurementForm, arguments: dress.id);
+                }
+              : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: dress.stock > 0 && dress.status == DressStatus.available 
+                ? theme.primaryColor 
+                : Colors.grey,
+            ),
+            child: Text(dress.stock > 0 && dress.status == DressStatus.available
+              ? 'Book & Enter Measurements'
+              : dress.stock == 0 ? 'Out of Stock' : 'Not Available'),
           ),
         ),
       ),
@@ -170,6 +201,11 @@ class ItemDetailsScreen extends StatelessWidget {
         color = Colors.red;
         label = 'Rented Out';
         icon = Icons.remove_circle;
+        break;
+      case DressStatus.outOfStock:
+        color = Colors.red;
+        label = 'Out of Stock';
+        icon = Icons.warning_amber_rounded;
         break;
     }
 
@@ -242,6 +278,44 @@ class ItemDetailsScreen extends StatelessWidget {
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('DELETE'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRefillDialog(BuildContext context, AppProvider provider, Dress dress) {
+    final controller = TextEditingController(text: '1');
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Refill Stock'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Current Stock: ${dress.stock}'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(labelText: 'Amount to add'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          TextButton(
+            onPressed: () {
+              final amount = int.tryParse(controller.text);
+              if (amount != null && amount > 0) {
+                provider.refillStock(dress.id, amount);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$amount items added to stock')),
+                );
+              }
+            },
+            child: const Text('REFILL'),
           ),
         ],
       ),

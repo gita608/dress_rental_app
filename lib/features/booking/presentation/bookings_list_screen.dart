@@ -156,7 +156,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Booking #${booking.id.substring(booking.id.length - 4)}',
+                                      'Booking #${booking.id.length > 4 ? booking.id.substring(booking.id.length - 4) : booking.id}',
                                       style: theme.textTheme.titleLarge?.copyWith(fontSize: 18),
                                     ),
                                     _buildStatusBadge(booking.status),

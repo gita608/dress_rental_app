@@ -41,7 +41,7 @@ class DressRentalApp extends StatelessWidget {
         textTheme: GoogleFonts.outfitTextTheme(AppTheme.darkTheme.textTheme),
       ),
       themeMode: provider.themeMode,
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.login,
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case AppRoutes.login:

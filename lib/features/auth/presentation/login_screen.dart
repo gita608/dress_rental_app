@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/providers/app_provider.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/app_logo.dart';
 
@@ -21,14 +23,20 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
       
-      // Simulate network request
-      await Future.delayed(const Duration(seconds: 1));
+      final provider = Provider.of<AppProvider>(context, listen: false);
+      final success = await provider.login(_emailController.text, _passwordController.text);
       
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        if (success) {
+          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login failed. Please check your credentials.')),
+          );
+        }
       }
     }
   }
@@ -58,18 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   AppLogo(
                     size: 80,
                     color: theme.primaryColor,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Welcome Back',
-                    style: theme.textTheme.displayMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign in to manage your dress rentals',
-                    style: theme.textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
                   TextFormField(

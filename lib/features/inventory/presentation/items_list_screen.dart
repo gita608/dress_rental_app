@@ -140,10 +140,22 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                 const SizedBox(height: 4),
                 Text('Available sizes: ${dress.sizes.join(', ')}'),
                 const SizedBox(height: 4),
-                Text('₹${dress.price.toStringAsFixed(0)} / day',
-                    style: TextStyle(
-                        color: theme.primaryColor,
-                        fontWeight: FontWeight.bold)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('₹${dress.price.toStringAsFixed(0)} / day',
+                        style: TextStyle(
+                            color: theme.primaryColor,
+                            fontWeight: FontWeight.bold)),
+                    Text('Stock: ${dress.stock}', 
+                      style: TextStyle(
+                        fontSize: 12, 
+                        color: dress.stock == 0 ? Colors.red : Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      )
+                    ),
+                  ],
+                ),
               ],
             ),
             trailing: _buildPopupMenu(context, provider, dress, realIndex),
@@ -206,11 +218,22 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('₹${dress.price.toStringAsFixed(0)} / day',
-                          style: TextStyle(
-                              color: theme.primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('₹${dress.price.toStringAsFixed(0)} / day',
+                              style: TextStyle(
+                                  color: theme.primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13)),
+                          Text('Stock: ${dress.stock}', 
+                            style: TextStyle(
+                              fontSize: 10, 
+                              color: dress.stock == 0 ? Colors.red : Colors.grey.shade600,
+                            )
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 2),
                       Text('Sizes: ${dress.sizes.join(', ')}', 
                         style: const TextStyle(fontSize: 11, color: Colors.grey),

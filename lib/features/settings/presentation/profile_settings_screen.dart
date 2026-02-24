@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/providers/app_provider.dart';
+import '../../../../core/models/models.dart';
 
 class ProfileSettingsScreen extends StatefulWidget {
   const ProfileSettingsScreen({super.key});
@@ -8,17 +11,45 @@ class ProfileSettingsScreen extends StatefulWidget {
 }
 
 class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
-  final _emailController = TextEditingController(text: 'admin@evoca.com');
-  final _passwordController = TextEditingController(text: '••••••••');
-  
-  bool _isEditingEmail = false;
-  bool _isEditingPassword = false;
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    final user = provider.currentUser;
+    _nameController = TextEditingController(text: user?.name ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+  }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveChanges() async {
+    setState(() => _isLoading = true);
+    
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    final updatedUser = User(
+      name: _nameController.text,
+      email: _emailController.text,
+      profileImage: provider.currentUser?.profileImage,
+    );
+    
+    await provider.updateProfile(updatedUser);
+    
+    if (mounted) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully')),
+      );
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -29,88 +60,76 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       appBar: AppBar(
         title: const Text('Profile Settings'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Center(
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.blueGrey,
-              child: Icon(Icons.person, size: 50, color: Colors.white),
-            ),
-          ),
-          const SizedBox(height: 32),
-          
-          _buildEditableField(
-            'Email Address',
-            _emailController,
-            _isEditingEmail,
-            () => setState(() => _isEditingEmail = !_isEditingEmail),
-            TextInputType.emailAddress,
-          ),
-          
-          const SizedBox(height: 24),
-          
-          _buildEditableField(
-            'Password',
-            _passwordController,
-            _isEditingPassword,
-            () => setState(() => _isEditingPassword = !_isEditingPassword),
-            TextInputType.visiblePassword,
-            obscureText: !_isEditingPassword,
-          ),
-          
-          const SizedBox(height: 48),
-          
-          ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile updated successfully')),
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Save Changes'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEditableField(
-    String label, 
-    TextEditingController controller, 
-    bool isEditing, 
-    VoidCallback onToggle,
-    TextInputType keyboardType,
-    {bool obscureText = false}
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                enabled: isEditing,
-                obscureText: obscureText,
-                keyboardType: keyboardType,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                  border: isEditing ? const UnderlineInputBorder() : InputBorder.none,
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              Center(
+                child: Stack(
+                  children: [
+                    const CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.blueGrey,
+                      child: Icon(Icons.person, size: 60, color: Colors.white),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: theme.primaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            IconButton(
-              icon: Icon(isEditing ? Icons.check : Icons.edit, size: 20),
-              onPressed: onToggle,
-              color: isEditing ? Colors.green : Colors.blueGrey,
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(height: 48),
+              
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email Address',
+                  prefixIcon: Icon(Icons.email_outlined),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              
+              const SizedBox(height: 48),
+              
+              ElevatedButton(
+                onPressed: _saveChanges,
+                child: const Text('Save Changes'),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              TextButton(
+                onPressed: () async {
+                  final provider = Provider.of<AppProvider>(context, listen: false);
+                  await provider.logout();
+                  if (mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                  }
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
     );
   }
 }
