@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
+import '../../../../core/widgets/status_badge.dart';
+import '../../../../core/utils/date_formatter.dart';
 
 class BookingsListScreen extends StatefulWidget {
   const BookingsListScreen({super.key});
@@ -159,7 +161,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                       'Booking #${booking.id.length > 4 ? booking.id.substring(booking.id.length - 4) : booking.id}',
                                       style: theme.textTheme.titleLarge?.copyWith(fontSize: 18),
                                     ),
-                                    _buildStatusBadge(booking.status),
+                                      StatusBadge(status: booking.status),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
@@ -186,7 +188,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                   children: [
                                     const Text('Rental Period:', style: TextStyle(color: Colors.grey)),
                                     Text(
-                                      '${booking.startDate.toString().split(' ')[0]} - ${booking.endDate.toString().split(' ')[0]}',
+                                      '${AppDateFormatter.formatDate(booking.startDate)} - ${AppDateFormatter.formatDate(booking.endDate)}',
                                       style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold),
                                     ),
                                   ],
@@ -222,7 +224,6 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
               ),
               const SizedBox(height: 20),
               _statusOption(context, provider, booking, 'Pending', BookingStatus.pending, Colors.orange),
-              _statusOption(context, provider, booking, 'Ready for Pickup', BookingStatus.ready, Colors.blue),
               _statusOption(context, provider, booking, 'Out for Rental', BookingStatus.active, Colors.green),
               _statusOption(context, provider, booking, 'Returned/Completed', BookingStatus.completed, Colors.grey),
               const SizedBox(height: 10),
@@ -247,43 +248,6 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
     );
   }
 
-  Widget _buildStatusBadge(BookingStatus status) {
-    Color color;
-    String label;
-    
-    switch (status) {
-      case BookingStatus.pending:
-        color = Colors.orange;
-        label = 'Pending';
-        break;
-      case BookingStatus.ready:
-        color = Colors.blue;
-        label = 'Ready';
-        break;
-      case BookingStatus.active:
-        color = Colors.green;
-        label = 'Active';
-        break;
-      case BookingStatus.completed:
-        color = Colors.grey;
-        label = 'Completed';
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(0), // Sharp edges
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
-      ),
-    );
-  }
-
   void _showCustomDateInputDialog(BuildContext context) {
     DateTime tempStart = _customStartDate ?? DateTime.now();
     DateTime tempEnd = _customEndDate ?? tempStart.add(const Duration(days: 3));
@@ -302,7 +266,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                 children: [
                   ListTile(
                     title: const Text('Start Date'),
-                    subtitle: Text(tempStart.toString().split(' ')[0], style: TextStyle(color: theme.colorScheme.primary)),
+                    subtitle: Text(AppDateFormatter.formatDate(tempStart), style: TextStyle(color: theme.colorScheme.primary)),
                     trailing: const Icon(Icons.edit_calendar),
                     onTap: () {
                       _showWheelPicker(context, tempStart, (date) {
@@ -313,7 +277,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                   const Divider(),
                   ListTile(
                     title: const Text('End Date'),
-                    subtitle: Text(tempEnd.toString().split(' ')[0], style: TextStyle(color: theme.colorScheme.primary)),
+                    subtitle: Text(AppDateFormatter.formatDate(tempEnd), style: TextStyle(color: theme.colorScheme.primary)),
                     trailing: const Icon(Icons.edit_calendar),
                     onTap: () {
                       _showWheelPicker(context, tempEnd, (date) {

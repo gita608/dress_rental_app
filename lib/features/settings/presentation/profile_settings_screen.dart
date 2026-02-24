@@ -120,9 +120,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               TextButton(
                 onPressed: () async {
                   final provider = Provider.of<AppProvider>(context, listen: false);
+                  final navigator = Navigator.of(context);
                   await provider.logout();
                   if (mounted) {
-                    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                    navigator.pushNamedAndRemoveUntil('/', (route) => false);
                   }
                 },
                 style: TextButton.styleFrom(foregroundColor: Colors.red),

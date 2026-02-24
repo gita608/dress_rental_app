@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/status_badge.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
   final int itemIndex;
@@ -95,7 +96,7 @@ class ItemDetailsScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildDressStatusBadge(dress.status),
+                          StatusBadge(status: dress.status),
                           const SizedBox(height: 4),
                           Text('Available Stock: ${dress.stock}', 
                             style: TextStyle(
@@ -172,57 +173,6 @@ class ItemDetailsScreen extends StatelessWidget {
               : dress.stock == 0 ? 'Out of Stock' : 'Not Available'),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDressStatusBadge(DressStatus status) {
-    Color color;
-    String label;
-    IconData icon;
-
-    switch (status) {
-      case DressStatus.available:
-        color = Colors.green;
-        label = 'Available Now';
-        icon = Icons.check_circle;
-        break;
-      case DressStatus.cleaning:
-        color = Colors.blue;
-        label = 'In Cleaning';
-        icon = Icons.water_drop;
-        break;
-      case DressStatus.repair:
-        color = Colors.orange;
-        label = 'In Repair';
-        icon = Icons.build_circle;
-        break;
-      case DressStatus.rented:
-        color = Colors.red;
-        label = 'Rented Out';
-        icon = Icons.remove_circle;
-        break;
-      case DressStatus.outOfStock:
-        color = Colors.red;
-        label = 'Out of Stock';
-        icon = Icons.warning_amber_rounded;
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12)),
-        ],
       ),
     );
   }

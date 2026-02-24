@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
+import '../../../../core/utils/date_formatter.dart';
 
 class MeasurementFormScreen extends StatefulWidget {
   const MeasurementFormScreen({super.key});
@@ -188,7 +189,7 @@ class _MeasurementFormScreenState extends State<MeasurementFormScreen> {
                         final initial = currentVal.isNotEmpty ? DateTime.parse(currentVal) : DateTime.now();
                         _showWheelPicker(context, initial, (date) {
                           setState(() {
-                            _startDateController.text = date.toString().split(' ')[0];
+                            _startDateController.text = AppDateFormatter.formatDate(date);
                           });
                         });
                       },
@@ -210,7 +211,7 @@ class _MeasurementFormScreenState extends State<MeasurementFormScreen> {
                         final initial = currentVal.isNotEmpty ? DateTime.parse(currentVal) : DateTime.now().add(const Duration(days: 3));
                         _showWheelPicker(context, initial, (date) {
                           setState(() {
-                            _endDateController.text = date.toString().split(' ')[0];
+                            _endDateController.text = AppDateFormatter.formatDate(date);
                           });
                         });
                       },

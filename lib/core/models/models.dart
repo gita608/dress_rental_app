@@ -1,4 +1,4 @@
-enum BookingStatus { pending, ready, active, completed }
+enum BookingStatus { pending, active, completed }
 enum DressStatus { available, cleaning, repair, rented, outOfStock }
 enum ViewMode { list, grid }
 

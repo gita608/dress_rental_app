@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/routing/app_routes.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
@@ -170,7 +169,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   final categories = provider.categories;
                   return DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Category'),
-                    value: _selectedCategoryId,
+                    initialValue: _selectedCategoryId,
                     hint: const Text('Select Category'),
                     items: categories.map((cat) {
                       return DropdownMenuItem(
