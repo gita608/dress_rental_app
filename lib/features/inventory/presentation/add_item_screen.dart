@@ -18,6 +18,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   late TextEditingController _priceController;
   late TextEditingController _descriptionController;
   Dress? _existingDress;
+  String? _selectedCategoryId;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
       _nameController = TextEditingController(text: _existingDress!.name);
       _priceController = TextEditingController(text: _existingDress!.price.toString());
       _descriptionController = TextEditingController(text: _existingDress!.description);
+      _selectedCategoryId = _existingDress!.categoryId;
     } else {
       _nameController = TextEditingController();
       _priceController = TextEditingController();
@@ -46,6 +48,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
           price: double.parse(_priceController.text),
           description: _descriptionController.text,
           sizes: _existingDress!.sizes,
+          categoryId: _selectedCategoryId,
           status: _existingDress!.status,
         );
         provider.updateDress(updatedDress);
@@ -56,6 +59,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
           price: double.parse(_priceController.text),
           description: _descriptionController.text,
           sizes: ['S', 'M', 'L'], // Default for now
+          categoryId: _selectedCategoryId,
         );
         provider.addDress(newDress);
       }
@@ -141,6 +145,32 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Please enter a description';
                   return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              Consumer<AppProvider>(
+                builder: (context, provider, child) {
+                  final categories = provider.categories;
+                  return DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    value: _selectedCategoryId,
+                    hint: const Text('Select Category'),
+                    items: categories.map((cat) {
+                      return DropdownMenuItem(
+                        value: cat.id,
+                        child: Text(cat.title),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategoryId = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Please select a category';
+                      return null;
+                    },
+                  );
                 },
               ),
             ],

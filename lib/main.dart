@@ -10,6 +10,7 @@ import 'features/inventory/presentation/add_item_screen.dart';
 import 'features/booking/presentation/item_details_screen.dart';
 import 'features/booking/presentation/measurement_form.dart';
 import 'features/settings/presentation/profile_settings_screen.dart';
+import 'features/inventory/presentation/category_management_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'core/providers/app_provider.dart';
@@ -57,6 +58,8 @@ class DressRentalApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const MeasurementFormScreen());
           case AppRoutes.profileSettings:
             return MaterialPageRoute(builder: (_) => const ProfileSettingsScreen());
+          case AppRoutes.categoryManagement:
+            return MaterialPageRoute(builder: (_) => const CategoryManagementScreen());
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
         }

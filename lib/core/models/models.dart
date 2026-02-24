@@ -2,12 +2,41 @@ enum BookingStatus { pending, ready, active, completed }
 enum DressStatus { available, cleaning, repair, rented }
 enum ViewMode { list, grid }
 
+class Category {
+  final String id;
+  final String title;
+  final String description;
+
+  Category({
+    required this.id,
+    required this.title,
+    required this.description,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+    };
+  }
+
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category(
+      id: map['id'],
+      title: map['title'],
+      description: map['description'],
+    );
+  }
+}
+
 class Dress {
   final String id;
   final String name;
   final double price;
   final String description;
   final List<String> sizes;
+  final String? categoryId;
   DressStatus status;
 
   Dress({
@@ -16,6 +45,7 @@ class Dress {
     required this.price,
     required this.description,
     required this.sizes,
+    this.categoryId,
     this.status = DressStatus.available,
   });
 
@@ -26,6 +56,7 @@ class Dress {
       'price': price,
       'description': description,
       'sizes': sizes,
+      'categoryId': categoryId,
       'status': status.name,
     };
   }
@@ -37,6 +68,7 @@ class Dress {
       price: map['price'],
       description: map['description'],
       sizes: List<String>.from(map['sizes']),
+      categoryId: map['categoryId'],
       status: DressStatus.values.byName(map['status']),
     );
   }

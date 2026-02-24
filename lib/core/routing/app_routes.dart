@@ -5,4 +5,5 @@ class AppRoutes {
   static const String itemDetails = '/item-details';
   static const String measurementForm = '/measurement-form';
   static const String profileSettings = '/profile-settings';
+  static const String categoryManagement = '/category-management';
 }

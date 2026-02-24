@@ -23,7 +23,9 @@ class SettingsScreen extends StatelessWidget {
           _buildSettingsTile(Icons.grid_view_outlined, 'Default Catalog View', () {
             _showViewModeModal(context);
           }),
-          _buildSettingsTile(Icons.category_outlined, 'Category Management', () {}),
+          _buildSettingsTile(Icons.category_outlined, 'Category Management', () {
+            Navigator.pushNamed(context, AppRoutes.categoryManagement);
+          }),
           _buildSectionHeader('System'),
           _buildSettingsTile(Icons.color_lens_outlined, 'Appearance', () {
             _showAppearanceModal(context);
