@@ -15,6 +15,7 @@ class ItemsListScreen extends StatefulWidget {
 
 class _ItemsListScreenState extends State<ItemsListScreen> {
   String _searchQuery = '';
+  String? _selectedCategoryId;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -28,16 +29,19 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
     final theme = Theme.of(context);
     final provider = Provider.of<AppProvider>(context);
     
-    // Filter dresses based on search query (by name or finding a specific size)
+    // Filter dresses based on search query and category
     final allDresses = provider.dresses;
-    final filteredDresses = _searchQuery.isEmpty 
-        ? allDresses 
-        : allDresses.where((dress) {
-            final query = _searchQuery.toLowerCase();
-            final matchesName = dress.name.toLowerCase().contains(query);
-            final matchesSize = dress.sizes.any((s) => s.toLowerCase().contains(query));
-            return matchesName || matchesSize;
-          }).toList();
+    final filteredDresses = allDresses.where((dress) {
+      // Category filter
+      final matchesCategory = _selectedCategoryId == null || dress.categoryId == _selectedCategoryId;
+      
+      // Search filter
+      final query = _searchQuery.toLowerCase();
+      final matchesName = dress.name.toLowerCase().contains(query);
+      final matchesSize = dress.sizes.any((s) => s.toLowerCase().contains(query));
+      
+      return matchesCategory && (matchesName || matchesSize);
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -93,6 +97,65 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                       )
                     : null,
               ),
+            ),
+          ),
+          
+          // Category Filter Chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(
+                      'All',
+                      style: TextStyle(
+                        color: _selectedCategoryId == null 
+                          ? theme.colorScheme.onPrimary 
+                          : theme.colorScheme.onSurface,
+                        fontWeight: _selectedCategoryId == null ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    selected: _selectedCategoryId == null,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedCategoryId = null;
+                      });
+                    },
+                    selectedColor: theme.colorScheme.primary,
+                    checkmarkColor: theme.colorScheme.onPrimary,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  ),
+                ),
+                ...provider.categories.map((category) {
+                  final isSelected = _selectedCategoryId == category.id;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: Text(
+                        category.title,
+                        style: TextStyle(
+                          color: isSelected 
+                            ? theme.colorScheme.onPrimary 
+                            : theme.colorScheme.onSurface,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedCategoryId = selected ? category.id : null;
+                        });
+                      },
+                      selectedColor: theme.colorScheme.primary,
+                      checkmarkColor: theme.colorScheme.onPrimary,
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    ),
+                  );
+                }),
+              ],
             ),
           ),
           Expanded(

@@ -25,18 +25,6 @@ class AppLogo extends StatelessWidget {
             height: 1.0,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          'FASHION STORE',
-          style: TextStyle(
-            fontFamily: 'Outfit',
-            fontSize: size * 0.18,
-            fontWeight: FontWeight.w700,
-            letterSpacing: size * 0.04,
-            color: textColor,
-            height: 1.0,
-          ),
-        ),
       ],
     );
   }

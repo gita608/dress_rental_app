@@ -32,7 +32,7 @@ class DressRentalApp extends StatelessWidget {
     final provider = Provider.of<AppProvider>(context);
 
     return MaterialApp(
-      title: 'EVOCA FASHION STORE',
+      title: 'EVOCA',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme.copyWith(
         textTheme: GoogleFonts.outfitTextTheme(AppTheme.lightTheme.textTheme),
