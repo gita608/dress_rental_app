@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/models/models.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -15,8 +16,13 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         children: [
           _buildSectionHeader('Account'),
-          _buildSettingsTile(Icons.person_outline, 'Profile Settings', () {}),
+          _buildSettingsTile(Icons.person_outline, 'Profile Settings', () {
+            Navigator.pushNamed(context, AppRoutes.profileSettings);
+          }),
           _buildSectionHeader('Inventory'),
+          _buildSettingsTile(Icons.grid_view_outlined, 'Default Catalog View', () {
+            _showViewModeModal(context);
+          }),
           _buildSettingsTile(Icons.category_outlined, 'Category Management', () {}),
           _buildSectionHeader('System'),
           _buildSettingsTile(Icons.color_lens_outlined, 'Appearance', () {
@@ -109,6 +115,51 @@ class SettingsScreen extends StatelessWidget {
                 trailing: provider.themeMode == ThemeMode.dark ? const Icon(Icons.check) : null,
                 onTap: () {
                   provider.setThemeMode(ThemeMode.dark);
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showViewModeModal(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Default Catalog View',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.view_list),
+                title: const Text('List View'),
+                trailing: provider.viewMode == ViewMode.list ? const Icon(Icons.check) : null,
+                onTap: () {
+                  provider.setViewMode(ViewMode.list);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.grid_view),
+                title: const Text('Grid View'),
+                trailing: provider.viewMode == ViewMode.grid ? const Icon(Icons.check) : null,
+                onTap: () {
+                  provider.setViewMode(ViewMode.grid);
                   Navigator.pop(context);
                 },
               ),

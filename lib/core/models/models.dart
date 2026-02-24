@@ -1,5 +1,6 @@
 enum BookingStatus { pending, ready, active, completed }
 enum DressStatus { available, cleaning, repair, rented }
+enum ViewMode { list, grid }
 
 class Dress {
   final String id;

@@ -8,10 +8,12 @@ class AppProvider with ChangeNotifier {
   static const String _bookingsKey = 'bookings';
 
   static const String _themeModeKey = 'themeMode';
+  static const String _viewModeKey = 'viewMode';
 
   final List<Dress> _dresses = [];
   final List<Booking> _bookings = [];
   ThemeMode _themeMode = ThemeMode.system;
+  ViewMode? _viewModeVal; // Use nullable for internal state safety during transition
 
   AppProvider() {
     _loadData();
@@ -20,6 +22,7 @@ class AppProvider with ChangeNotifier {
   List<Dress> get dresses => _dresses;
   List<Booking> get bookings => _bookings;
   ThemeMode get themeMode => _themeMode;
+  ViewMode get viewMode => _viewModeVal ?? ViewMode.list;
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -61,7 +64,19 @@ class AppProvider with ChangeNotifier {
       _themeMode = ThemeMode.values[themeModeIndex];
     }
 
+    final viewModeIndex = prefs.getInt(_viewModeKey);
+    if (viewModeIndex != null) {
+      _viewModeVal = ViewMode.values[viewModeIndex];
+    }
+
     notifyListeners();
+  }
+
+  Future<void> setViewMode(ViewMode mode) async {
+    _viewModeVal = mode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_viewModeKey, mode.index);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -79,6 +94,21 @@ class AppProvider with ChangeNotifier {
 
   void addDress(Dress dress) {
     _dresses.add(dress);
+    _saveData();
+    notifyListeners();
+  }
+
+  void updateDress(Dress dress) {
+    final index = _dresses.indexWhere((d) => d.id == dress.id);
+    if (index != -1) {
+      _dresses[index] = dress;
+      _saveData();
+      notifyListeners();
+    }
+  }
+
+  void deleteDress(String id) {
+    _dresses.removeWhere((d) => d.id == id);
     _saveData();
     notifyListeners();
   }

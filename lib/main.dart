@@ -9,6 +9,7 @@ import 'features/home/presentation/main_screen.dart';
 import 'features/inventory/presentation/add_item_screen.dart';
 import 'features/booking/presentation/item_details_screen.dart';
 import 'features/booking/presentation/measurement_form.dart';
+import 'features/settings/presentation/profile_settings_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'core/providers/app_provider.dart';
@@ -47,12 +48,15 @@ class DressRentalApp extends StatelessWidget {
           case AppRoutes.home:
             return MaterialPageRoute(builder: (_) => const MainScreen());
           case AppRoutes.addItem:
-            return MaterialPageRoute(builder: (_) => const AddItemScreen());
+            final editIndex = settings.arguments as int?;
+            return MaterialPageRoute(builder: (_) => AddItemScreen(itemIndex: editIndex));
           case AppRoutes.itemDetails:
             final itemIndex = settings.arguments as int? ?? 0;
             return MaterialPageRoute(builder: (_) => ItemDetailsScreen(itemIndex: itemIndex));
           case AppRoutes.measurementForm:
             return MaterialPageRoute(builder: (_) => const MeasurementFormScreen());
+          case AppRoutes.profileSettings:
+            return MaterialPageRoute(builder: (_) => const ProfileSettingsScreen());
           default:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
         }

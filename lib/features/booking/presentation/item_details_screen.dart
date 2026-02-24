@@ -28,8 +28,16 @@ class ItemDetailsScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.favorite_border),
-            onPressed: () {},
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.addItem, arguments: itemIndex);
+            },
+            tooltip: 'Edit Dress',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            onPressed: () => _showDeleteConfirmation(context, provider, dress),
+            tooltip: 'Delete Dress',
           ),
         ],
       ),
@@ -97,7 +105,7 @@ class ItemDetailsScreen extends StatelessWidget {
                   Text('Description', style: theme.textTheme.titleLarge),
                   const SizedBox(height: 8),
                   Text(
-                    'A stunning, floor-length gown featuring intricate lacework and a flowing silhouette. Perfect for formal events, weddings, or galas.',
+                    dress.description,
                     style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
                   ),
                   
@@ -209,6 +217,34 @@ class ItemDetailsScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, AppProvider provider, Dress dress) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Item'),
+        content: Text('Are you sure you want to delete "${dress.name}"? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () {
+              provider.deleteDress(dress.id);
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Return to catalog
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Item deleted successfully')),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('DELETE'),
+          ),
+        ],
+      ),
     );
   }
 
