@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/routing/app_routes.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
@@ -168,8 +169,8 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                   ),
                 )
               : provider.viewMode == ViewMode.list 
-                ? _buildListView(filteredDresses, allDresses, theme, provider)
-                : _buildGridView(filteredDresses, allDresses, theme, provider),
+                ? _buildListView(filteredDresses, theme, provider)
+                : _buildGridView(filteredDresses, theme, provider),
           ),
         ],
       ),
@@ -181,20 +182,22 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
       width: width,
       height: height,
       color: Colors.grey.shade200,
-      child: dress.imagePath != null && File(dress.imagePath!).existsSync()
-          ? Image.file(File(dress.imagePath!), fit: BoxFit.cover)
+      child: dress.imagePath != null
+          ? Image.file(
+              File(dress.imagePath!),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, color: Colors.grey),
+            )
           : const Icon(Icons.image, color: Colors.grey),
     );
   }
 
-  Widget _buildListView(List<Dress> filteredDresses, List<Dress> allDresses, ThemeData theme, AppProvider provider) {
+  Widget _buildListView(List<Dress> filteredDresses, ThemeData theme, AppProvider provider) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: filteredDresses.length,
       itemBuilder: (context, index) {
         final dress = filteredDresses[index];
-        final realIndex = allDresses.indexOf(dress);
-        
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
           child: ListTile(
@@ -226,9 +229,9 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                 ),
               ],
             ),
-            trailing: _buildPopupMenu(context, provider, dress, realIndex),
+            trailing: _buildPopupMenu(context, provider, dress),
             onTap: () {
-              Navigator.pushNamed(context, AppRoutes.itemDetails, arguments: realIndex);
+              Navigator.pushNamed(context, AppRoutes.itemDetails, arguments: dress.id);
             },
           ),
         );
@@ -236,11 +239,12 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
     );
   }
 
-  Widget _buildGridView(List<Dress> filteredDresses, List<Dress> allDresses, ThemeData theme, AppProvider provider) {
+  Widget _buildGridView(List<Dress> filteredDresses, ThemeData theme, AppProvider provider) {
+    final crossAxisCount = Responsive.catalogGridColumns(context);
     return GridView.builder(
       padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         childAspectRatio: 0.75,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
@@ -248,13 +252,11 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
       itemCount: filteredDresses.length,
       itemBuilder: (context, index) {
         final dress = filteredDresses[index];
-        final realIndex = allDresses.indexOf(dress);
-        
         return Card(
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () {
-              Navigator.pushNamed(context, AppRoutes.itemDetails, arguments: realIndex);
+              Navigator.pushNamed(context, AppRoutes.itemDetails, arguments: dress.id);
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +280,7 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          _buildPopupMenu(context, provider, dress, realIndex, size: 16),
+                          _buildPopupMenu(context, provider, dress, size: 16),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -315,12 +317,12 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
     );
   }
 
-  Widget _buildPopupMenu(BuildContext context, AppProvider provider, Dress dress, int realIndex, {double size = 24}) {
+  Widget _buildPopupMenu(BuildContext context, AppProvider provider, Dress dress, {double size = 24}) {
     return PopupMenuButton<String>(
       iconSize: size,
       onSelected: (value) {
         if (value == 'edit') {
-          Navigator.pushNamed(context, AppRoutes.addItem, arguments: realIndex);
+          Navigator.pushNamed(context, AppRoutes.addItem, arguments: dress.id);
         } else if (value == 'delete') {
           _showDeleteConfirmation(context, provider, dress);
         }

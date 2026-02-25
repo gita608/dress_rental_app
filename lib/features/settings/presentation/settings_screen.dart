@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
@@ -25,7 +27,12 @@ class SettingsScreen extends StatelessWidget {
             leading: CircleAvatar(
               radius: 24,
               backgroundColor: theme.primaryColor.withValues(alpha: 0.1),
-              child: Icon(Icons.person, color: theme.primaryColor),
+              backgroundImage: _profileImageFromUser(user) != null
+                  ? MemoryImage(_profileImageFromUser(user)!)
+                  : null,
+              child: _profileImageFromUser(user) == null
+                  ? Icon(Icons.person, color: theme.primaryColor)
+                  : null,
             ),
             title: Text(user?.name ?? 'Guest User', style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text(user?.email ?? 'Sign in to sync data'),
@@ -64,6 +71,18 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Uint8List? _profileImageFromUser(User? user) {
+    final img = user?.profileImage;
+    if (img == null || img.isEmpty) return null;
+    try {
+      final base64 = img.startsWith('data:') ? img.split(',').lastOrNull ?? img : img;
+      if (base64.isNotEmpty) {
+        return base64Decode(base64);
+      }
+    } catch (_) {}
+    return null;
   }
 
   Widget _buildSectionHeader(String title) {

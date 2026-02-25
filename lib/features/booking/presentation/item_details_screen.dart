@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/responsive.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
@@ -7,21 +8,19 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/widgets/status_badge.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
-  final int itemIndex;
+  final String dressId;
 
-  const ItemDetailsScreen({super.key, required this.itemIndex});
+  const ItemDetailsScreen({super.key, required this.dressId});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final provider = Provider.of<AppProvider>(context);
-    
-    // Check if index is valid
-    if (itemIndex >= provider.dresses.length) {
+    final dressIndex = provider.dresses.indexWhere((d) => d.id == dressId);
+    if (dressIndex == -1) {
       return const Scaffold(body: Center(child: Text('Item not found')));
     }
-
-    final dress = provider.dresses[itemIndex];
+    final dress = provider.dresses[dressIndex];
     
     return Scaffold(
       appBar: AppBar(
@@ -32,7 +31,7 @@ class ItemDetailsScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.addItem, arguments: itemIndex);
+              Navigator.pushNamed(context, AppRoutes.addItem, arguments: dress.id);
             },
             tooltip: 'Edit Dress',
           ),
@@ -49,10 +48,15 @@ class ItemDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              height: 400,
+              height: Responsive.itemDetailImageHeight(context),
               decoration: BoxDecoration(color: Colors.grey.shade300),
-              child: dress.imagePath != null && File(dress.imagePath!).existsSync()
-                  ? Image.file(File(dress.imagePath!), fit: BoxFit.cover, width: double.infinity)
+              child: dress.imagePath != null
+                  ? Image.file(
+                      File(dress.imagePath!),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 100, color: Colors.grey),
+                    )
                   : const Icon(Icons.image, size: 100, color: Colors.grey),
             ),
             Padding(
@@ -238,7 +242,7 @@ class ItemDetailsScreen extends StatelessWidget {
     final controller = TextEditingController(text: '1');
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Refill Stock'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -253,13 +257,13 @@ class ItemDetailsScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('CANCEL')),
           TextButton(
             onPressed: () {
               final amount = int.tryParse(controller.text);
               if (amount != null && amount > 0) {
                 provider.refillStock(dress.id, amount);
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('$amount items added to stock')),
                 );
@@ -269,7 +273,7 @@ class ItemDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   Widget _statusOption(BuildContext context, AppProvider provider, Dress dress, String label, DressStatus status, Color color) {

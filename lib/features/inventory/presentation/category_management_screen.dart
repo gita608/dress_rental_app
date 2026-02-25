@@ -54,7 +54,7 @@ class CategoryManagementScreen extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(isEditing ? 'Edit Category' : 'Add Category'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -73,32 +73,33 @@ class CategoryManagementScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('CANCEL'),
           ),
           TextButton(
             onPressed: () {
               if (titleController.text.isEmpty) return;
-              
               final provider = Provider.of<AppProvider>(context, listen: false);
               final newCategory = Category(
                 id: isEditing ? category.id : DateTime.now().millisecondsSinceEpoch.toString(),
                 title: titleController.text,
                 description: descController.text,
               );
-
               if (isEditing) {
                 provider.updateCategory(newCategory);
               } else {
                 provider.addCategory(newCategory);
               }
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: Text(isEditing ? 'UPDATE' : 'SAVE'),
           ),
         ],
       ),
-    );
+    ).then((_) {
+      titleController.dispose();
+      descController.dispose();
+    });
   }
 
   void _showDeleteConfirmation(BuildContext context, AppProvider provider, Category category) {

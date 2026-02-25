@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/routing/app_routes.dart';
 
 class MeasurementFormScreen extends StatefulWidget {
   const MeasurementFormScreen({super.key});
@@ -65,7 +67,7 @@ class _MeasurementFormScreenState extends State<MeasurementFormScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Close dialog
-                  Navigator.popUntil(context, ModalRoute.withName('/')); // Return to home
+                  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.home)); // Return to home
                 },
                 child: const Text('Back to Home'),
               ),
@@ -153,9 +155,12 @@ class _MeasurementFormScreenState extends State<MeasurementFormScreen> {
       appBar: AppBar(
         title: const Text('Book & Add Measurements'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Responsive.maxFormWidth(context)),
+            child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -291,6 +296,8 @@ class _MeasurementFormScreenState extends State<MeasurementFormScreen> {
                 child: const Text('Confirm Booking'),
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),

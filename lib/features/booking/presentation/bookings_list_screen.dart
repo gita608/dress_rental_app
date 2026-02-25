@@ -52,6 +52,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
     final theme = Theme.of(context);
     final provider = Provider.of<AppProvider>(context);
     final allBookings = provider.bookings;
+    final dressesById = {for (final d in provider.dresses) d.id: d};
 
     // Apply the filter
     final filteredBookings = allBookings.where((booking) {
@@ -142,8 +143,8 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                     itemCount: filteredBookings.length,
                     itemBuilder: (context, index) {
                       final booking = filteredBookings[index];
-                      final dress = provider.dresses.firstWhere((d) => d.id == booking.dressId,
-                          orElse: () => Dress(id: '', name: 'Unknown Dress', price: 0, description: '', sizes: []));
+                      final dress = dressesById[booking.dressId] ??
+                          Dress(id: '', name: 'Unknown Dress', price: 0, description: '', sizes: []);
                       
                       return Card(
                         margin: const EdgeInsets.only(bottom: 16),

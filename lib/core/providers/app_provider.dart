@@ -40,9 +40,16 @@ class AppProvider with ChangeNotifier {
   double get totalRevenue => _bookings.length * 1500.0; // Mock revenue
 
   Future<void> _loadData() async {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await _loadFromPreferences(prefs);
+    } catch (e) {
+      debugPrint('AppProvider._loadData error: $e');
+    }
+    notifyListeners();
+  }
 
-    // Load User
+  Future<void> _loadFromPreferences(SharedPreferences prefs) async {
     final userJson = prefs.getString(_userKey);
     if (userJson != null) {
       _currentUser = User.fromMap(jsonDecode(userJson));
@@ -135,16 +142,14 @@ class AppProvider with ChangeNotifier {
     }
 
     final themeModeIndex = prefs.getInt(_themeModeKey);
-    if (themeModeIndex != null) {
+    if (themeModeIndex != null && themeModeIndex < ThemeMode.values.length) {
       _themeMode = ThemeMode.values[themeModeIndex];
     }
 
     final viewModeIndex = prefs.getInt(_viewModeKey);
-    if (viewModeIndex != null) {
+    if (viewModeIndex != null && viewModeIndex < ViewMode.values.length) {
       _viewModeVal = ViewMode.values[viewModeIndex];
     }
-
-    notifyListeners();
   }
 
   // Auth Methods (Mocking API)
@@ -186,12 +191,16 @@ class AppProvider with ChangeNotifier {
   }
 
   Future<void> _saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_dressesKey, jsonEncode(_dresses.map((d) => d.toMap()).toList()));
-    await prefs.setString(_bookingsKey, jsonEncode(_bookings.map((b) => b.toMap()).toList()));
-    await prefs.setString(_categoriesKey, jsonEncode(_categories.map((c) => c.toMap()).toList()));
-    if (_currentUser != null) {
-      await prefs.setString(_userKey, jsonEncode(_currentUser!.toMap()));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_dressesKey, jsonEncode(_dresses.map((d) => d.toMap()).toList()));
+      await prefs.setString(_bookingsKey, jsonEncode(_bookings.map((b) => b.toMap()).toList()));
+      await prefs.setString(_categoriesKey, jsonEncode(_categories.map((c) => c.toMap()).toList()));
+      if (_currentUser != null) {
+        await prefs.setString(_userKey, jsonEncode(_currentUser!.toMap()));
+      }
+    } catch (e) {
+      debugPrint('AppProvider._saveData error: $e');
     }
   }
 

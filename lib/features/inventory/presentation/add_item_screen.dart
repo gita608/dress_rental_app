@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/responsive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -7,8 +8,8 @@ import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
 
 class AddItemScreen extends StatefulWidget {
-  final int? itemIndex;
-  const AddItemScreen({super.key, this.itemIndex});
+  final String? dressId;
+  const AddItemScreen({super.key, this.dressId});
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -28,15 +29,19 @@ class _AddItemScreenState extends State<AddItemScreen> {
   void initState() {
     super.initState();
     final provider = Provider.of<AppProvider>(context, listen: false);
-    if (widget.itemIndex != null) {
-      _existingDress = provider.dresses[widget.itemIndex!];
+    if (widget.dressId != null) {
+      final idx = provider.dresses.indexWhere((d) => d.id == widget.dressId);
+      if (idx != -1) {
+        _existingDress = provider.dresses[idx];
       _nameController = TextEditingController(text: _existingDress!.name);
       _priceController = TextEditingController(text: _existingDress!.price.toString());
       _descriptionController = TextEditingController(text: _existingDress!.description);
       _selectedCategoryId = _existingDress!.categoryId;
       _selectedImagePath = _existingDress!.imagePath;
       _stockController = TextEditingController(text: _existingDress!.stock.toString());
-    } else {
+      }
+    }
+    if (_existingDress == null) {
       _nameController = TextEditingController();
       _priceController = TextEditingController();
       _descriptionController = TextEditingController();
@@ -66,16 +71,24 @@ class _AddItemScreenState extends State<AddItemScreen> {
   }
 
   void _saveItem() {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState?.validate() ?? false) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       
+      final price = double.tryParse(_priceController.text);
+      final stock = int.tryParse(_stockController.text);
+      if (price == null || price <= 0 || stock == null || stock < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter valid price and stock values')),
+        );
+        return;
+      }
       if (_existingDress != null) {
         final updatedDress = _existingDress!.copyWith(
           name: _nameController.text,
-          price: double.parse(_priceController.text),
+          price: price,
           description: _descriptionController.text,
           categoryId: _selectedCategoryId,
-          stock: int.parse(_stockController.text),
+          stock: stock,
           imagePath: _selectedImagePath,
         );
         provider.updateDress(updatedDress);
@@ -83,11 +96,11 @@ class _AddItemScreenState extends State<AddItemScreen> {
         final newDress = Dress(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: _nameController.text,
-          price: double.parse(_priceController.text),
+          price: price,
           description: _descriptionController.text,
           sizes: ['S', 'M', 'L'],
           categoryId: _selectedCategoryId,
-          stock: int.parse(_stockController.text),
+          stock: stock,
           imagePath: _selectedImagePath,
         );
         provider.addDress(newDress);
@@ -121,13 +134,16 @@ class _AddItemScreenState extends State<AddItemScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: Responsive.maxFormWidth(context)),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
@@ -224,7 +240,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   );
                 },
               ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

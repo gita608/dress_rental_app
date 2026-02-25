@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_routes.dart';
 
+import 'features/splash/presentation/splash_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/home/presentation/main_screen.dart';
 import 'features/inventory/presentation/add_item_screen.dart';
@@ -41,19 +42,21 @@ class DressRentalApp extends StatelessWidget {
         textTheme: GoogleFonts.outfitTextTheme(AppTheme.darkTheme.textTheme),
       ),
       themeMode: provider.themeMode,
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.splash,
       onGenerateRoute: (settings) {
         switch (settings.name) {
+          case AppRoutes.splash:
+            return MaterialPageRoute(builder: (_) => const SplashScreen());
           case AppRoutes.login:
             return MaterialPageRoute(builder: (_) => const LoginScreen());
           case AppRoutes.home:
             return MaterialPageRoute(builder: (_) => const MainScreen());
           case AppRoutes.addItem:
-            final editIndex = settings.arguments as int?;
-            return MaterialPageRoute(builder: (_) => AddItemScreen(itemIndex: editIndex));
+            final dressId = settings.arguments as String?;
+            return MaterialPageRoute(builder: (_) => AddItemScreen(dressId: dressId));
           case AppRoutes.itemDetails:
-            final itemIndex = settings.arguments as int? ?? 0;
-            return MaterialPageRoute(builder: (_) => ItemDetailsScreen(itemIndex: itemIndex));
+            final dressId = settings.arguments as String? ?? '';
+            return MaterialPageRoute(builder: (_) => ItemDetailsScreen(dressId: dressId));
           case AppRoutes.measurementForm:
             return MaterialPageRoute(builder: (_) => const MeasurementFormScreen());
           case AppRoutes.profileSettings:
