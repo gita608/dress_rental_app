@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
 import '../../../../core/models/models.dart';
@@ -18,6 +21,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   late TextEditingController _descriptionController;
   Dress? _existingDress;
   String? _selectedCategoryId;
+  String? _selectedImagePath;
   late TextEditingController _stockController;
 
   @override
@@ -30,6 +34,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
       _priceController = TextEditingController(text: _existingDress!.price.toString());
       _descriptionController = TextEditingController(text: _existingDress!.description);
       _selectedCategoryId = _existingDress!.categoryId;
+      _selectedImagePath = _existingDress!.imagePath;
       _stockController = TextEditingController(text: _existingDress!.stock.toString());
     } else {
       _nameController = TextEditingController();
@@ -39,20 +44,39 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image == null || !mounted) return;
+      final dir = await getApplicationDocumentsDirectory();
+      final fileName = 'dress_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final dest = File('${dir.path}/$fileName');
+      await dest.writeAsBytes(await image.readAsBytes());
+      if (mounted) {
+        setState(() => _selectedImagePath = dest.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not pick image: $e')),
+        );
+      }
+    }
+  }
+
   void _saveItem() {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       
       if (_existingDress != null) {
-        final updatedDress = Dress(
-          id: _existingDress!.id,
+        final updatedDress = _existingDress!.copyWith(
           name: _nameController.text,
           price: double.parse(_priceController.text),
           description: _descriptionController.text,
-          sizes: _existingDress!.sizes,
           categoryId: _selectedCategoryId,
           stock: int.parse(_stockController.text),
-          status: _existingDress!.status,
+          imagePath: _selectedImagePath,
         );
         provider.updateDress(updatedDress);
       } else {
@@ -61,9 +85,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
           name: _nameController.text,
           price: double.parse(_priceController.text),
           description: _descriptionController.text,
-          sizes: ['S', 'M', 'L'], // Default for now
+          sizes: ['S', 'M', 'L'],
           categoryId: _selectedCategoryId,
           stock: int.parse(_stockController.text),
+          imagePath: _selectedImagePath,
         );
         provider.addDress(newDress);
       }
@@ -103,21 +128,31 @@ class _AddItemScreenState extends State<AddItemScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Placeholder for image upload
-              Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_a_photo, size: 40, color: Colors.grey.shade600),
-                    const SizedBox(height: 8),
-                    Text('Tap to add photos', style: TextStyle(color: Colors.grey.shade600)),
-                  ],
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: _selectedImagePath != null
+                      ? Image.file(
+                          File(_selectedImagePath!),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 40, color: Colors.grey.shade600),
+                            const SizedBox(height: 8),
+                            Text('Tap to add photos', style: TextStyle(color: Colors.grey.shade600)),
+                          ],
+                        ),
                 ),
               ),
               const SizedBox(height: 24),

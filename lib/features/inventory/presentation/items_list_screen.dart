@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../core/routing/app_routes.dart';
 import 'package:provider/provider.dart';
@@ -175,6 +176,17 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
     );
   }
 
+  Widget _buildDressThumb(Dress dress, double width, double height) {
+    return Container(
+      width: width,
+      height: height,
+      color: Colors.grey.shade200,
+      child: dress.imagePath != null && File(dress.imagePath!).existsSync()
+          ? Image.file(File(dress.imagePath!), fit: BoxFit.cover)
+          : const Icon(Icons.image, color: Colors.grey),
+    );
+  }
+
   Widget _buildListView(List<Dress> filteredDresses, List<Dress> allDresses, ThemeData theme, AppProvider provider) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -187,14 +199,7 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
-            leading: Container(
-              width: 60,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-              ),
-              child: const Icon(Icons.image, color: Colors.grey),
-            ),
+            leading: _buildDressThumb(dress, 60, 80),
             title: Text(dress.name,
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Column(
@@ -255,11 +260,7 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.image, color: Colors.grey, size: 40),
-                  ),
+                  child: _buildDressThumb(dress, double.infinity, double.infinity),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),

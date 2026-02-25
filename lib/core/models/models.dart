@@ -37,6 +37,7 @@ class Dress {
   final String description;
   final List<String> sizes;
   final String? categoryId;
+  final String? imagePath;
   int stock;
   DressStatus status;
 
@@ -47,9 +48,34 @@ class Dress {
     required this.description,
     required this.sizes,
     this.categoryId,
+    this.imagePath,
     this.stock = 1,
     this.status = DressStatus.available,
   });
+
+  Dress copyWith({
+    String? id,
+    String? name,
+    double? price,
+    String? description,
+    List<String>? sizes,
+    String? categoryId,
+    String? imagePath,
+    int? stock,
+    DressStatus? status,
+  }) {
+    return Dress(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      description: description ?? this.description,
+      sizes: sizes ?? this.sizes,
+      categoryId: categoryId ?? this.categoryId,
+      imagePath: imagePath ?? this.imagePath,
+      stock: stock ?? this.stock,
+      status: status ?? this.status,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -59,6 +85,7 @@ class Dress {
       'description': description,
       'sizes': sizes,
       'categoryId': categoryId,
+      'imagePath': imagePath,
       'stock': stock,
       'status': status.name,
     };
@@ -72,6 +99,7 @@ class Dress {
       description: map['description'],
       sizes: List<String>.from(map['sizes']),
       categoryId: map['categoryId'],
+      imagePath: map['imagePath'],
       stock: map['stock'] ?? 1,
       status: DressStatus.values.byName(map['status']),
     );

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_provider.dart';
@@ -47,13 +48,12 @@ class ItemDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Hero Image Placeholder
             Container(
               height: 400,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-              ),
-              child: const Icon(Icons.image, size: 100, color: Colors.grey),
+              decoration: BoxDecoration(color: Colors.grey.shade300),
+              child: dress.imagePath != null && File(dress.imagePath!).existsSync()
+                  ? Image.file(File(dress.imagePath!), fit: BoxFit.cover, width: double.infinity)
+                  : const Icon(Icons.image, size: 100, color: Colors.grey),
             ),
             Padding(
               padding: const EdgeInsets.all(24.0),
